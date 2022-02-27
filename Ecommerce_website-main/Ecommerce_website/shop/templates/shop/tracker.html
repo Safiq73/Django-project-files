@@ -1,0 +1,101 @@
+{% extends 'shop/basic.html' %}
+{% block title%} Tracker {% endblock%}
+
+{% block css%} 
+<style>
+
+</style>
+{% endblock%}
+
+{% block body%}
+<div class="container">
+    <h2 class="mt-4">Order Tracker: You can track your orders here</h2>
+    <form class="row g-3" action="#" id="trackerForm" method="post">{%csrf_token%}
+      <div class="col-md-6">
+          <label for="orderId" class="form-label">Order ID</label>
+          <input type="text" class="form-control" id="orderId" name="orderId">
+        </div>
+        <div class="col-6">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email">
+      </div>
+        <!-- This is a hidden input field value for this will be assigned using the jquery from the local storage -->
+      <div class="col-12 my-4">
+        <button type="submit" class="btn btn-primary" >Track your order</button>
+      </div>
+    </form>
+    <h2>Order status</h2>
+    <ol class="list-group list-group-numbered" id="items">
+      <div class="fw-bold mx-4">Your order status will be shown here</div>
+      </ol>
+      <h2>Order details</h2>
+    <ol class="list-group list-group-numbered" id="citems">
+      <div class="fw-bold mx-4">Your order details will be shown here</div>
+      </ol>
+</div>
+{% endblock%}
+{% block js %}
+<script> 
+ 
+    $('#trackerForm').submit(function(event){
+      $('#items').empty()
+      var formData={
+        'orderId':$('input[name=orderId]').val(),
+        'email':$('input[name=email]').val(), 
+        'csrfmiddlewaretoken':$('input[name=csrfmiddlewaretoken]').val(), 
+      }
+      $.ajax({
+        type:'POST',
+        url:'/shop/tracker/',
+        data: formData,
+        encode:true
+      })
+      .done(function(data){
+        data=JSON.parse(data)
+        if(data['status']=='success'){ 
+          $('#citems').empty()  
+          $('#items').empty()   
+          updates=data['updates']
+        for (var item in updates){
+          let updName =updates[item]['text']
+          let updDate =updates[item]['time']                
+          myStr=`<li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">${updName}</div>
+              </div>
+              <span class="badge bg-primary rounded-pill">${updDate}</span>
+            </li>`  
+          $('#items').append(myStr)
+      }
+      orderNames=JSON.parse(data['orderJson'])
+      for (var item in orderNames){
+        let ordName =orderNames[item][1]
+        let ordQty =orderNames[item][0]              
+        myStr=`<li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">${ordName}</div>
+            </div>
+            <span class="badge bg-primary rounded-pill">${ordQty}</span>
+          </li>`  
+        $('#citems').append(myStr)
+    }}
+      else{
+        $('#citems').empty()  
+        $('#items').empty() 
+        myStr=`<li class="list-group-item d-flex justify-content-between align-items-start">
+          <div class="ms-2 me-auto">
+            <div class="fw-bold">Sorry! Unable to fetch the order </div>
+          </div>
+        </li>`  
+      $('#items').append(myStr)
+      $('#citems').append('Something went wrong, Make sure you have entered correct details')
+      }
+      })
+      event.preventDefault()
+    })
+
+    
+  </script>
+
+{% endblock%}
+ 

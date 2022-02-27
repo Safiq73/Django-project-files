@@ -1,0 +1,30 @@
+{% extends 'shop/basic.html' %}
+{% block title%} Your cart{% endblock%}
+
+{% block css%} 
+<style></style>
+{% endblock%}
+
+
+{% block body%} 
+
+<div class="container">
+    <h3>Your cart items</h3>
+    <div class="cartItems">
+        <p>Your cart is empty</p>
+    </div>
+</div>
+{% endblock%}
+
+{% block js %}
+    <script>
+        cart = JSON.parse(localStorage.getItem("cart"));
+        function cartItems(cart){
+            for (var item in cart){
+                item
+        }}
+    cartItems(cart)
+    </script>
+
+{% endblock%}
+

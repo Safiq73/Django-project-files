@@ -1,0 +1,26 @@
+{% extends 'shop/basic.html' %}
+{% block title%} Product view {% endblock%}
+
+{% block css%} 
+<style></style>
+{% endblock%}
+
+
+{% block body%} 
+<div class="container">
+    <div class="row m-4">
+        <div class="col-md-5">
+            <img src="/media/{{product.product_image}}" alt="Product image" width="350px">
+        </div>
+        <div class="col-md-7">
+            <h5>{{product.product_name}}</h5>
+            <p><b>Price:₹ {{product.price}}/- </b></p>
+            <p>{{product.desc}}</p>
+        </div>
+    </div>
+    <div class="my-4">
+    <button class="btn btn-primary mx-3">Buy now</button>
+    <button class="btn btn-primary">Add to cart</button>
+</div>
+</div>
+{% endblock%}
