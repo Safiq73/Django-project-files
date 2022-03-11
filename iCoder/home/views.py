@@ -1,9 +1,11 @@
 from http.client import HTTPResponse
 import imp
+from turtle import title
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import Contact
 from django.contrib import messages
+from blog.models import Blog
 
 # Create your views here.
 
@@ -27,4 +29,8 @@ def about(request):
     return render(request, 'home/about.html')
 
 def search(request):
-    return HttpResponse('This is search')
+    query=request.GET['query']
+    # blog= Blog.objects.all()
+    blog= Blog.objects.filter(title__icontains=query)
+    params={"blog":blog} 
+    return render(request, 'home/search.html', params)
