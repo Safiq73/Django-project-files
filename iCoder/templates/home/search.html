@@ -5,8 +5,8 @@
 {% load static %}
 <div class="container mt-4">
   <h2>Search results:</h2>
-  {% if blog|length <1 %}
-      
+  {% if blog|length < 1 %}
+  <h6>No search results</h6>
   {% endif %}
   <div class="row my-2">
     {% for item in blog %}    

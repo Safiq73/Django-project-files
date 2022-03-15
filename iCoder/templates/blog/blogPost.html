@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load extras %}
 
 {% block title %}BlogPost{% endblock title %}
 {% block body %}
@@ -6,9 +7,94 @@
     <h2 class="blog-post-title">{{post.title}}</h2>
     <p class="blog-post-meta">{{post.Timestamp  }}  By <a href="/about">{{post.author}}</a></p>
 
-    <p>{{post.content}}</p>
+    <p>{{post.content }}</p>
     
   </article>
+  <div class="container">
+    <h3>Comments [{{comments.count}}]</h3>
+    <div class="my-2">
+    {% if user.is_authenticated%}
+    <form action="/blog/postComment/" method="POST">
+    {% csrf_token %}
+      <div class="mb-2">
+        <label for="comment" class="form-label">Write your comment</label>
+        <textarea class="form-control" id="comment" name="comment" rows="2"></textarea>
+      </div>
+        <div class="mb-1">
+          <input type="hidden" class="form-control" id="post" name="post" value="{{post.blogId}}">
+          <input type="hidden" class="form-control" id="parentComment" name="parentComment" value="">
+        </div>
+        <button type="submit" class="btn btn-success mb-4">
+          Post
+        </button>
+      </form>
+      {%else%}
+      <h6 class="mb-4">Please login to comment and reply to comments</h6>
+      {% endif%}
+    </div>
+    {% for comment in comments%}
+    <div class="row my-3">
+      <div class="col-md-1">
+        <img src="/static/blog/user1.jpg " class="rounded float-start w-100" alt="...">
+      </div>
+
+      <div class="col-md-9">
+        <p><b>{{comment.user.first_name}}</b> {{comment.timeStamp|timesince}}</p>
+        <p>{{comment.comment}}</p>
+
+        {% if user.is_authenticated%}
+        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#replyBox{{comment.sNo}}" aria-expanded="false" aria-controls="replyBox{{comment.sNo}}">
+          Reply
+        </button>
+       
+       
+        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#viewreplies{{comment.sNo}}" aria-expanded="false" aria-controls="viewreplies{{comment.sNo}}">
+          view replies
+        </button>
 
 
+
+
+      </p>
+      <div class="collapse" id="replyBox{{comment.sNo}}">
+        <div class="card card-body">
+          <form action="/blog/postComment/" method="POST">
+            {% csrf_token %}
+          <div class="mb-2">
+            <label for="comment" class="form-label">Write your reply</label>
+            <textarea class="form-control" id="comment" name="comment" rows="2"></textarea>
+          </div>
+              <input type="hidden" class="form-control" id="post" name="post" value="{{post.blogId}}">
+              <input type="hidden" class="form-control" id="parentComment" name="parentComment" value="{{comment.sNo}}">
+            <button type="submit" class="btn btn-success mb-1">
+              Post
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endif%}
+      {% for reply in replyDict|get_val:comment.sNo %}
+      
+      <div class="collapse" id="viewreplies{{comment.sNo}}">
+        <div class="card card-body">
+          <div class="row my-1">
+            <div class="col-md-1">
+                  <img src="/static/blog/download.png" class="rounded float-start w-100" alt="...">
+                </div>
+                <div class="col">
+                  <p>{{reply.comment}}</p>
+                  
+                </div>
+              
+
+            </div>
+          </div>
+
+
+
+        </div>
+        {%endfor%}
+    </div>
+    {% endfor %}
+  </div>
 {% endblock body %}

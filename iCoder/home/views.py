@@ -1,8 +1,7 @@
-from http.client import HTTPResponse
-import imp
-from turtle import title
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Contact
 from django.contrib import messages
 from blog.models import Blog
@@ -31,6 +30,61 @@ def about(request):
 def search(request):
     query=request.GET['query']
     # blog= Blog.objects.all()
-    blog= Blog.objects.filter(title__icontains=query)
+    if len(query)>100:
+        blog=[]     
+    else:
+        blogTitle= Blog.objects.filter(title__icontains=query)
+        blogAuthor= Blog.objects.filter(content__icontains=query)
+        blogContent= Blog.objects.filter(title__icontains=query)
+        blog=blogTitle.union(blogAuthor, blogContent)
     params={"blog":blog} 
+    if len(blog)==0:
+        messages.warning(request, 'No results')
     return render(request, 'home/search.html', params)
+
+def handleSignup(request):
+    if request.method=='POST':
+        userName=request.POST['Username']
+        fName=request.POST['fname']
+        lName=request.POST['lname']
+        email=request.POST['email']
+        pass1=request.POST['pass1']
+        pass2=request.POST['pass2']
+               
+        # checks
+        if pass1 !=pass2:
+            messages.error(request, "Password fields must be same")
+            return redirect('home')
+        
+        # creating the user
+        myUser=User.objects.create_user(userName, email, pass1)
+        myUser.first_name=fName
+        myUser.last_name=lName
+        myUser.save()
+        messages.success(request, "Your account has been created")
+        return redirect('home')
+    else:
+        return HttpResponse('404- Operation failed')
+    
+    
+def handleLogin(request):
+    if request.method=='POST':
+        userName=request.POST['Username']
+        password=request.POST['pass']
+        
+        user=authenticate(request, username=userName, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Logged in successfully")   
+            return redirect('home')
+        else:
+            messages.error(request, "Invalid credentials")   
+            return redirect('home')
+    else:
+        messages.error(request, "Invalid credentials")   
+        return redirect('home')
+        
+    
+def handleLogout(request):
+    logout(request)
+    return redirect('home')

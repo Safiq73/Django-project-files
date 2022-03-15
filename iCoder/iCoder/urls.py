@@ -18,6 +18,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+admin.site.site_header="iCoder Admin"
+admin.site.site_title="iCoder Admin panel"
+admin.site.index_title="Welcome to iCoder Admin panel"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls')),
